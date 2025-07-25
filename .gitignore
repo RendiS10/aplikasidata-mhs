@@ -31,8 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # backend data & log
-/backend/*.json
-/backend/app.log
+
 /backend/security-notes.txt
 
 # test artifacts
