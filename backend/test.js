@@ -3,6 +3,8 @@ const chaiHttp = require("chai-http");
 const expect = chai.expect;
 const app = require("./server"); // Import app langsung, bukan server listen
 const supertest = require("supertest");
+const fs = require("fs");
+const path = require("path");
 
 chai.use(chaiHttp);
 const request = supertest(app);
