@@ -1,0 +1,37 @@
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies (root)
+        run: npm install
+      - name: Run frontend tests
+        run: npm run test
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm install
+          npm test
+  # Deploy job (edit sesuai platform deploy Anda)
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      # Deploy ke Vercel/Render/dll, contoh:
+      - name: Deploy Frontend ke Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+      - name: Deploy Backend ke Render (opsional)
+        run: echo "Deploy backend ke Render pakai git push atau API Render"

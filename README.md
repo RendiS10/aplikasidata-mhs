@@ -194,6 +194,137 @@ Lihat `/backend/README.md` untuk dokumentasi pengujian backend (Mocha, Chai, Sup
 
 ---
 
+## Deployment, Testing, dan CI/CD
+
+### 1. Langkah-langkah Testing
+
+- Jalankan unit test frontend:
+  ```sh
+  npm run test
+  ```
+- Jalankan unit test backend (dari folder backend):
+  ```sh
+  cd backend
+  npm test
+  ```
+- Pastikan semua test lulus sebelum deploy.
+
+#### Contoh Hasil Testing
+
+```
+PASS  __tests__/Login.test.js
+PASS  __tests__/Home.test.js
+PASS  __tests__/Tambah.test.js
+PASS  __tests__/KomentarRealtime.test.js
+
+Test Suites: 4 passed, 4 total
+Tests:       20 passed, 20 total
+```
+
+### 2. Link Aplikasi yang Sudah Dideploy
+
+- Frontend (Next.js): [https://NAMA-DEPLOY-VERCEL.vercel.app](https://NAMA-DEPLOY-VERCEL.vercel.app)
+- Backend (Express.js): [https://NAMA-DEPLOY-BACKEND.onrender.com](https://NAMA-DEPLOY-BACKEND.onrender.com)
+
+> Ganti link di atas sesuai hasil deployment Anda.
+
+### 3. Penjelasan Proses CI/CD
+
+- **Continuous Integration (CI):**
+  - Setiap push/pull request ke branch utama, workflow GitHub Actions otomatis menjalankan seluruh unit test frontend dan backend.
+  - Jika ada test yang gagal, proses deploy dibatalkan.
+- **Continuous Deployment (CD):**
+  - Jika semua test lulus, workflow otomatis deploy frontend ke Vercel dan backend ke Render (atau platform lain sesuai konfigurasi).
+  - Proses ini memastikan aplikasi selalu dalam kondisi stabil dan siap digunakan.
+
+#### Contoh Potongan Kode Workflow CI/CD (GitHub Actions)
+
+```yaml
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies (root)
+        run: npm install
+      - name: Run frontend tests
+        run: npm run test
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm install
+          npm test
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      # Deploy ke Vercel/Render/dll, contoh:
+      - name: Deploy Frontend ke Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+      - name: Deploy Backend ke Render (opsional)
+        run: echo "Deploy backend ke Render pakai git push atau API Render"
+```
+
+> Ganti konfigurasi deploy sesuai platform yang Anda gunakan.
+
+### 4. Potongan Kode Testing
+
+Contoh pengujian frontend (Jest):
+
+```js
+// __tests__/Login.test.js
+import { render, screen } from "@testing-library/react";
+import Login from "../src/app/login/page";
+
+test("render login form", () => {
+  render(<Login />);
+  expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+});
+```
+
+Contoh pengujian backend (Mocha/Chai):
+
+```js
+// backend/test.js
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const server = require("./server");
+chai.use(chaiHttp);
+
+describe("Auth", () => {
+  it("should register a user", (done) => {
+    chai
+      .request(server)
+      .post("/register")
+      .send({
+        email: "test@email.com",
+        password: "123",
+        name: "Test",
+        role: "mahasiswa",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        done();
+      });
+  });
+});
+```
+
+---
+
 ## Lisensi
 
 Aplikasi ini dikembangkan untuk keperluan pembelajaran. Silakan gunakan, modifikasi, dan distribusikan sesuai kebutuhan.
