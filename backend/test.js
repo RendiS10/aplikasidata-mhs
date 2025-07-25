@@ -1,13 +1,11 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const expect = chai.expect;
-// const app = require("./server"); // Dihapus agar tidak double listen
-const fs = require("fs");
-const path = require("path");
+const app = require("./server"); // Import app langsung, bukan server listen
 const supertest = require("supertest");
 
 chai.use(chaiHttp);
-const request = supertest("http://localhost:3001");
+const request = supertest(app);
 
 // Helper untuk mendapatkan token login
 async function getToken(email, password) {

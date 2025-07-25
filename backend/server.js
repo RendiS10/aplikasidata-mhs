@@ -474,8 +474,11 @@ app.get("/mahasiswa", verifyToken, (req, res) => {
   }
 });
 
-// Menjalankan server pada port yang ditentukan
-server.listen(PORT, () => {
-  // Menampilkan pesan bahwa API berjalan
-  console.log(`Server berjalan di http://localhost:${PORT}/mahasiswa`);
-});
+// Menjalankan server pada port yang ditentukan hanya jika dijalankan langsung
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}/mahasiswa`);
+  });
+} else {
+  module.exports = app;
+}
